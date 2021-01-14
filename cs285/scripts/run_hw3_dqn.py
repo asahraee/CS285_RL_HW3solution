@@ -43,7 +43,7 @@ def main():
     parser.add_argument(
         '--env_name',
         default='MsPacman-v0',
-        choices=('PongNoFrameskip-v4', 'LunarLander-v3', 'MsPacman-v0')
+        choices=('PongNoFrameskip-v4', 'LunarLander-v3', 'MsPacman-v0', 'Asterix-v0')
     )
 
     parser.add_argument('--ep_len', type=int, default=200)
@@ -57,7 +57,7 @@ def main():
     parser.add_argument('--double_q', action='store_false')
 
     parser.add_argument('--seed', type=int, default=1)
-    parser.add_argument('--no_gpu', '-ngpu', action='store_false') #...............
+    parser.add_argument('--no_gpu', '-ngpu', action='store_true') #its equal to use gpu
     parser.add_argument('--which_gpu', '-gpu_id', default=0)
     parser.add_argument('--scalar_log_freq', type=int, default=int(1e4))
     parser.add_argument('--video_log_freq', type=int, default=-1)

@@ -82,7 +82,7 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode=('
         # only the last observation is passed to policy for getting the action
         ac = policy.get_action(ob) # HINT: query the policy's get_action function
         # ...................................................
-        ac = ac[0]
+        # ac = ac[0]
         acs.append(ac)
 
         # take that action and record results

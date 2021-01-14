@@ -1,6 +1,7 @@
 from .base_critic import BaseCritic
 from torch import nn
 from torch import optim
+import torch
 
 from cs285.infrastructure import pytorch_util as ptu
 
@@ -87,12 +88,18 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
         #       that its dimensions match the reward
         # ............................................................
         num_iter = self.num_grad_steps_per_target_update*self.num_target_updates
-        target_value = reward_n + (terminal_n) * self.gamma * self.forward(next_ob_no)
+        reward_n = ptu.from_numpy(reward_n)
+        ob_no = ptu.from_numpy(ob_no)
+        ac_na = ptu.from_numpy(ac_na)
+        next_ob_no = ptu.from_numpy(next_ob_no)
+        terminal_n = ptu.from_numpy(terminal_n)
+        target_value = reward_n + torch.logical_not(terminal_n) * self.gamma * self.forward(next_ob_no)
+        loss = None
         for itr in range(num_iter):
             # target update
             if itr % self.num_grad_steps_per_target_update == 0:
-                target_value = reward_n + (terminal_n)*self.gamma*self.forward(next_ob_no)
-
+                target_value = reward_n + torch.logical_not(terminal_n)*self.gamma*self.forward(next_ob_no)
+                target_value = target_value.detach()
             # current predicted value and loss
             pred_value = self.forward(ob_no)
             loss = self.loss(pred_value, target_value)

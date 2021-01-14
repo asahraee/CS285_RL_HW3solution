@@ -6,6 +6,7 @@ from cs285.infrastructure.replay_buffer import ReplayBuffer
 from cs285.infrastructure.utils import *
 from cs285.policies.MLP_policy import MLPPolicyAC
 from .base_agent import BaseAgent
+import torch
 
 
 class ACAgent(BaseAgent):
@@ -39,10 +40,18 @@ class ACAgent(BaseAgent):
 
         # for agent_params['num_actor_updates_per_agent_update'] steps,
         #     update the actor
-
         loss = OrderedDict()
-        loss['Critic_Loss'] = TODO
-        loss['Actor_Loss'] = TODO
+        # ............................................................
+        critic_loss = 0
+        actor_loss = 0
+        for _ in range(self.agent_params['num_critic_updates_per_agent_update']):
+            critic_loss = self.critic.update(ob_no, ac_na, next_ob_no, re_n, terminal_n)
+        loss['Critic_Loss'] = critic_loss
+        advantage = self.estimate_advantage(ob_no, next_ob_no, re_n, terminal_n)
+
+        for _ in range(self.agent_params['num_actor_updates_per_agent_update']):
+            actor_loss = self.actor.update(ob_no, ac_na, advantage)
+        loss['Actor_Loss'] = actor_loss
 
         return loss
 
@@ -53,7 +62,13 @@ class ACAgent(BaseAgent):
         # 3) estimate the Q value as Q(s, a) = r(s, a) + gamma*V(s')
         # HINT: Remember to cut off the V(s') term (ie set it to 0) at terminal states (ie terminal_n=1)
         # 4) calculate advantage (adv_n) as A(s, a) = Q(s, a) - V(s)
-        adv_n = TODO
+
+        # ............................................................ check the forward one tensor or np array????
+        Vs = self.critic.forward_np(ob_no)
+        next_Vs = self.critic.forward_np(next_ob_no)
+        Q_sa = re_n + np.logical_not(terminal_n)*self.gamma*next_Vs
+        adv_n = Q_sa - Vs
+        # ............................................................
 
         if self.standardize_advantages:
             adv_n = (adv_n - np.mean(adv_n)) / (np.std(adv_n) + 1e-8)
