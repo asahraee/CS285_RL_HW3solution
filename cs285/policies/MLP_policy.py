@@ -113,7 +113,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         else:
             mean = self.mean_net(observation)
             std = torch.exp(self.logstd)
-            action_distribution = distributions.normal.Normal(loc=mean, scale=std)
+            action_distribution = distributions.multivariate_normal.MultivariateNormal(mean, torch.diag(std))
         # ............................................................
 
         return action_distribution
@@ -138,7 +138,6 @@ class MLPPolicyAC(MLPPolicy):
         # HINT2: you will want to use the `log_prob` method on the distribution returned
         # by the `forward` method
         # HINT3: don't forget that `optimizer.step()` MINIMIZES a loss
-
         actions_prob = self.forward(observations)
         loss = -torch.sum(actions_prob.log_prob(actions)*adv_n)
 
@@ -147,28 +146,6 @@ class MLPPolicyAC(MLPPolicy):
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
-        # if self.nn_baseline:
-        #     ## TODO: normalize the q_values to have a mean of zero and a standard deviation of one
-        #     ## HINT: there is a `normalize` function in `infrastructure.utils`
-        #     targets = TODO
-        #     targets = ptu.from_numpy(targets)
-        #
-        #     ## TODO: use the `forward` method of `self.baseline` to get baseline predictions
-        #     baseline_predictions = TODO
-        #
-        #     ## avoid any subtle broadcasting bugs that can arise when dealing with arrays of shape
-        #     ## [ N ] versus shape [ N x 1 ]
-        #     ## HINT: you can use `squeeze` on torch tensors to remove dimensions of size 1
-        #     assert baseline_predictions.shape == targets.shape
-        #
-        #     # TODO: compute the loss that should be optimized for training the baseline MLP (`self.baseline`)
-        #     # HINT: use `F.mse_loss`
-        #     baseline_loss = TODO
-        #
-        #     # TODO: optimize `baseline_loss` using `self.baseline_optimizer`
-        #     # HINT: remember to `zero_grad` first
-        #     TODO
-
         # ............................................................
 
         return loss.item()
