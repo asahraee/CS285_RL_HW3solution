@@ -51,7 +51,7 @@ A. (Recommended) Install with conda:
 
 	5. Allow your code to be able to see 'cs285'
 	```
-	cd <path_to_hw1>
+	cd <path to the folder that contains cs285>
 	$ pip install -e .
 	```
 
@@ -61,7 +61,7 @@ This conda environment requires activating it every time you open a new terminal
 B. Install on system Python:
 	```
 	pip install -r requirements.txt
-	
+	```
 
 
 
